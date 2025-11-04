@@ -2,7 +2,7 @@ from joblib import load
 import pandas as pd
 
 
-model = load('model_utils/yield_predictor.joblib')
+model = load('models/yield_predictor.joblib')
 
 input_values = [ 'Wheat', 'Kharif', 'Punjab', 20, 10, 20, 40]
 
