@@ -4,12 +4,12 @@ import pandas as pd
 
 model = load('models/yield_predictor.joblib')
 
-input_values = [ 'Wheat', 'Kharif', 'Punjab', 20, 10, 20, 40]
+input_values = [ 'Coconut', 'Kharif', 'Assam', 10, 20, 40]
 
 input_df = pd.DataFrame(
-    [input_values],  # Single row of raw data
+    [input_values],
     columns=[
-        'Crop', 'Season', 'State', 'Area', 'Annual_Rainfall',
+        'Crop', 'Season', 'State', 'Annual_Rainfall',
         'Fertilizer_Per_Hectare', 'Pesticide_Per_Hectare'
     ]
 )
