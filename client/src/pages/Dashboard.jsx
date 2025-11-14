@@ -1,402 +1,304 @@
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../store/language';
-import { useAuth } from '../store/Auth';
-import { useNavigate } from "react-router";
-import axios from 'axios';
+import { Link } from 'react-router-dom';
+import { Icon, TrendingUp, Sprout, Bug, Droplets, Sun, AlertCircle, ArrowRight, Calendar, Gauge } from 'lucide-react';
+import { farm } from '@lucide/lab';
 
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  PointElement,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-} from 'chart.js';
-
-import { Doughnut, Line, Bar } from 'react-chartjs-2';
-
-// Register Chart.js components once
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend,
-  PointElement,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  BarElement
-);
-
-// --- Icon Components (for better visual understanding) ---
-const TractorIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-6 w-6"><path d="M3 4h18" /><path d="M11 4v10h10" /><path d="m3 14 4 6" /><path d="M18 20 14 14" /><circle cx="18" cy="18" r="2" /><circle cx="7" cy="18" r="4" /></svg>;
-const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-5 w-5"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>;
-const WaterDropIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-blue-500"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C5 11.1 4 13 4 15a7 7 0 0 0 7 7z" /></svg>;
-const FertilizerIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-yellow-600"><path d="M21 11V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6" /><path d="m16 12 4 4-2.5 2.5-4-4 2.5-2.5z" /></svg>;
-const BugIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-red-500"><path d="M20 10c0-4.4-3.6-8-8-8s-8 3.6-8 8v10h16V10z" /><path d="m12 10-2-4h4l-2 4Z" /><path d="M12 10v10" /><path d="M6 14h-2" /><path d="M18 14h2" /><path d="M6 18H4" /><path d="M18 18h2" /></svg>;
-
-
-// --- Main Dashboard Component ---
-const FarmerDashboard = () => {
-  const { isLoggedIn } = useAuth();
-  const { T, language, setLanguage } = useLanguage();
-  const navigate = useNavigate();
-
-  // State to hold all the farm information from the form
-  const [farmInfo, setFarmInfo] = useState({
-    Crop: "",
-    Season: "",
-    State: "",
-    Annual_Rainfall: "",
-    Fertilizer_Per_Hectare: "",
-    Pesticide_Per_Hectare: "",
+const Dashboard = () => {
+  const [stats, setStats] = useState({
+    totalFarms: 0,
+    activeCrops: 0,
+    pestsDetected: 0,
+    recommendations: 0
   });
 
-  const [prediction, setPrediction] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
-
-  // Redirect if not logged in
+  // Simulate loading stats (replace with actual API call)
   useEffect(() => {
-    if (!isLoggedIn) {
-      return navigate("/login");
+    // Simulate API call
+    setTimeout(() => {
+      setStats({
+        totalFarms: 2,
+        activeCrops: 8,
+        pestsDetected: 1,
+        recommendations: 4
+      });
+    }, 500);
+  }, []);
+
+  const quickStats = [
+    {
+      title: 'Total Farms',
+      value: stats.totalFarms,
+      change: '+12%',
+      icon: <Sprout className="w-6 h-6" />,
+      color: 'from-emerald-500 to-emerald-600',
+      bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
+      textColor: 'text-emerald-600 dark:text-emerald-400'
+    },
+    {
+      title: 'Active Crops',
+      value: stats.activeCrops,
+      change: '+8%',
+      icon: <TrendingUp className="w-6 h-6" />,
+      color: 'from-blue-500 to-blue-600',
+      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+      textColor: 'text-blue-600 dark:text-blue-400'
+    },
+    {
+      title: 'Pests Detected',
+      value: stats.pestsDetected,
+      change: '-15%',
+      icon: <Bug className="w-6 h-6" />,
+      color: 'from-orange-500 to-orange-600',
+      bgColor: 'bg-orange-50 dark:bg-orange-900/20',
+      textColor: 'text-orange-600 dark:text-orange-400'
+    },
+    {
+      title: 'AI Recommendations',
+      value: stats.recommendations,
+      change: '+23%',
+      icon: <AlertCircle className="w-6 h-6" />,
+      color: 'from-purple-500 to-purple-600',
+      bgColor: 'bg-purple-50 dark:bg-purple-900/20',
+      textColor: 'text-purple-600 dark:text-purple-400'
     }
-  }, [isLoggedIn, navigate]);
+  ];
 
-  // A single function to update farm info when the user types
-  const handleInfoChange = (e) => {
-    const { name, value } = e.target;
-    setFarmInfo((prevInfo) => ({
-      ...prevInfo,
-      [name]: value,
-    }));
-  };
-
-  // Function to run when the "Get Estimate" button is clicked
-  const handleGetEstimate = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrorMessage(null);
-    setPrediction(null);
-
-    try {
-      const payload = {
-        Crop: farmInfo.Crop.trim(),
-        Season: farmInfo.Season.trim(),
-        State: farmInfo.State.trim(),
-        Annual_Rainfall: parseFloat(farmInfo.Annual_Rainfall),
-        Fertilizer_Per_Hectare: parseFloat(farmInfo.Fertilizer_Per_Hectare),
-        Pesticide_Per_Hectare: parseFloat(farmInfo.Pesticide_Per_Hectare),
-      };
-
-      console.log("Sending payload to API:", payload); // Debug log
-
-      const response = await axios.post(
-        "http://127.0.0.1:5000/api/v1/crops/predict/yield",
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
-
-      console.log("API Response:", response.data);
-
-      // Handle response
-      if (response.data.success && response.data.data) {
-        (farmInfo.Crop.trim().toLowerCase() != 'coconut') ? setPrediction(response.data.data.yield.toFixed(2)) : setPrediction(response.data.data.yield.toFixed(0));
-      } else if (response.data.yield) {
-        setPrediction(response.data.yield.toFixed(2));
-      } else {
-        throw new Error("Invalid response format");
-      }
-    } catch (err) {
-      console.error("Error fetching prediction:", err);
-
-      // Better error handling
-      if (err.response) {
-        // Server responded with error
-        setErrorMessage(err.response.data?.error?.message || err.response.data?.msg || T.error);
-      } else if (err.request) {
-        // Request made but no response
-        setErrorMessage("Server is not responding. Please try again later.");
-      } else {
-        // Something else happened
-        setErrorMessage(err.message || T.error);
-      }
-    } finally {
-      setIsLoading(false);
+  const recentActivity = [
+    {
+      id: 1,
+      action: 'Crop Recommendation Generated',
+      crop: 'Wheat',
+      time: '2 hours ago',
+      status: 'success'
+    },
+    {
+      id: 2,
+      action: 'Pest Detected',
+      crop: 'Rice Field A',
+      time: '5 hours ago',
+      status: 'warning'
+    },
+    {
+      id: 3,
+      action: 'Farm Added',
+      crop: 'Cotton Farm',
+      time: '1 day ago',
+      status: 'info'
+    },
+    {
+      id: 4,
+      action: 'Weather Alert',
+      crop: 'All Farms',
+      time: '2 days ago',
+      status: 'alert'
     }
+  ];
+
+  const weatherData = {
+    temp: '28°C',
+    condition: 'Partly Cloudy',
+    humidity: '65%',
+    rainfall: '12mm'
   };
 
-  let targetYield = null;
-  if (farmInfo.Crop.trim().toLowerCase() != 'coconut')
-    targetYield = 5;     // 1 ton/hectare is our target
-  else
-    targetYield = 5000;    // 2000 nuts/hectare is out target
-  const yieldPercentage = prediction ? Math.round((prediction / targetYield) * 100) : 0;
-
-  const doughnutData = {
-    labels: [T.targetAchieved, T.targetRemaining],
-    datasets: [
-      {
-        data: [yieldPercentage, 100 - yieldPercentage],
-        backgroundColor: ["#22C55E", "#E5E7EB"], // Green and Gray
-        borderWidth: 0,
-      },
-    ],
-  };
-
-  const lineData = {
-    labels: ['2020', '2021', '2022', '2023', '2024'],
-    datasets: [
-      {
-        label: T.yieldLabel,
-        data: [4.2, 4.8, 3.9, 5.1, 4.7],
-        borderColor: '#8B5CF6', // Purple
-        backgroundColor: 'rgba(139, 92, 246, 0.2)',
-        tension: 0.3,
-      },
-      {
-        label: T.rainfallLabel,
-        data: [800, 950, 720, 1100, 880],
-        borderColor: '#3B82F6', // Blue
-        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-        tension: 0.3,
-      }
-    ]
-  };
-
-  const barData = {
-    labels: [T.low, T.medium, T.high],
-    datasets: [
-      {
-        label: T.impactOnYield,
-        data: [3.2, 4.8, 5.4],
-        backgroundColor: 'rgba(245, 158, 11, 0.8)', // Amber
-        borderColor: 'rgba(245, 158, 11, 1)',
-        borderWidth: 1,
-      }
-    ]
-  };
-
-  const commonChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { position: 'bottom', labels: { color: '#374151' } } },
-    scales: {
-      x: { ticks: { color: '#374151' } },
-      y: { ticks: { color: '#374151' } }
-    }
-  };
-
-  const doughnutOptions = { ...commonChartOptions, cutout: "70%", plugins: { ...commonChartOptions.plugins, legend: { display: false } } };
-
+  const quickActions = [
+    {
+      title: 'Manage Farms',
+      description: 'View and edit your farm data',
+      icon: <Icon iconNode={farm} className="w-8 h-8" />,
+      link: '/my-farms',
+      color: 'from-blue-500 to-blue-600'
+    },
+    {
+      title: 'Yield Prediction',
+      description: 'ML-based crop yield prediction',
+      icon: <Gauge className="w-8 h-8" />,
+      link: '/yield-prediction',
+      color: 'from-yellow-500 to-yellow-600'
+    },
+    {
+      title: 'Get Crop Recommendation',
+      description: 'AI-powered crop suggestions',
+      icon: <Sprout className="w-8 h-8" />,
+      link: '/recommend',
+      color: 'from-emerald-500 to-emerald-600'
+    },
+    {
+      title: 'Identify Pest',
+      description: 'Upload image for instant detection',
+      icon: <Bug className="w-8 h-8" />,
+      link: '/identify',
+      color: 'from-red-500 to-red-600'
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-green-50 p-4 sm:p-6 font-sans">
-      <div className="max-w-7xl mx-auto">
-
-        {/* --- Header --- */}
-        <header className="mb-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center">
-              <TractorIcon />
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-                {T.dashboard.title}
-              </h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="bg-white px-4 py-2 rounded-lg shadow-sm text-center sm:text-left">
-                <span className="text-sm text-gray-600">{T.dashboard.todaysDate}:</span>
-                <span className="ml-2 font-semibold text-gray-900">
-                  {new Date().toLocaleDateString(language === 'hi' ? 'hi-IN' : language === 'or' ? 'or-IN' : 'en-IN')}
-                </span>
-              </div>
-            </div>
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 animate-fadeIn">
+      {/* Welcome Banner */}
+      <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 dark:from-emerald-700 dark:to-emerald-800 rounded-2xl p-6 sm:p-8 text-white shadow-xl">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Welcome back, Farmer! 👋</h1>
+            <p className="text-emerald-100">Here's what's happening with your farms today</p>
           </div>
-        </header>
-
-        {/* --- Main Section: Form and Prediction Result --- */}
-        <main className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* --- Left Side: Input Form --- */}
-          <div className="lg:col-span-2">
-            <form onSubmit={handleGetEstimate} className="bg-white p-6 rounded-xl shadow-lg space-y-4">
-              <h2 className="text-xl font-bold text-gray-800 border-b pb-2">
-                {T.dashboard.fillDetails}
-              </h2>
-
-              {/* Simplified Form Fields */}
-              {/* Each field has a clear label and an emoji */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{T.dashboard.crop} 🌱</label>
-                <input name='Crop' onChange={handleInfoChange} value={farmInfo.Crop} type="text" placeholder={T.dashboard.cropPlaceholder} className="w-full input-style" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{T.dashboard.season} 🍂</label>
-                <select name='Season' onChange={handleInfoChange} value={farmInfo.Season} className="w-full input-style" required>
-                  <option value="">{T.dashboard.selectSeason}</option>
-                  <option value="Rabi">{T.dashboard.rabi}</option>
-                  <option value="Kharif">{T.dashboard.kharif}</option>
-                  <option value="Whole Year">{T.dashboard.wholeYear}</option>
-                  <option value="Summer">{T.dashboard.summer}</option>
-                  <option value="Autumn">{T.dashboard.autumn}</option>
-                  <option value="Winter">{T.dashboard.winter}</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{T.dashboard.state} 🏕️</label>
-                <input name='State' onChange={handleInfoChange} value={farmInfo.State} type="text" placeholder={T.dashboard.statePlaceholder} className="w-full input-style" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{T.dashboard.rainfall} 🌧️</label>
-                <input name='Annual_Rainfall' onChange={handleInfoChange} value={farmInfo.Annual_Rainfall} type="number" step="0.01" placeholder={T.dashboard.rainfallPlaceholder} className="w-full input-style" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{T.dashboard.fertilizer} 💊</label>
-                <input name='Fertilizer_Per_Hectare' onChange={handleInfoChange} value={farmInfo.Fertilizer_Per_Hectare} type="number" step="0.01" placeholder={T.dashboard.fertilizerPlaceholder} className="w-full input-style" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{T.dashboard.pesticide} 🐛</label>
-                <input name='Pesticide_Per_Hectare' onChange={handleInfoChange} value={farmInfo.Pesticide_Per_Hectare} type="number" step="0.01" placeholder={T.dashboard.pesticidePlaceholder} className="w-full input-style" required />
-              </div>
-
-              <button type="submit" disabled={isLoading} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 disabled:opacity-50 disabled:scale-100 flex items-center justify-center">
-                {isLoading ? T.dashboard.calculating : T.dashboard.estimateYield}
-              </button>
-            </form>
-
-            {/* --- Suggestions Area --- */}
-            <div className="mt-6 space-y-3">
-              <h3 className="text-lg font-bold text-gray-800">{T.dashboard.suggestions}</h3>
-              <div className="suggestion-card">
-                <WaterDropIcon />
-                <div>
-                  <h4 className="font-semibold text-gray-900">{T.common.irrigation}</h4>
-                  <p className="text-sm text-gray-600">{T.dashboard.irrigationText}</p>
-                </div>
-              </div>
-              <div className="suggestion-card">
-                <FertilizerIcon />
-                <div>
-                  <h4 className="font-semibold text-gray-900">{T.dashboard.fertilization}</h4>
-                  <p className="text-sm text-gray-600">{T.dashboard.fertilizationText}</p>
-                </div>
-              </div>
-              <div className="suggestion-card">
-                <BugIcon />
-                <div>
-                  <h4 className="font-semibold text-gray-900">{T.dashboard.pestControl}</h4>
-                  <p className="text-sm text-gray-600">{T.dashboard.pestControlText}</p>
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
+            <Calendar className="w-5 h-5" />
+            <span className="font-medium">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
           </div>
+        </div>
+      </div>
 
-          {/* --- Right Side: Prediction and Charts --- */}
-          <div className="lg:col-span-3">
-            {/* --- Charts Grid --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Doughnut Chart */}
-              <div className="chart-card">
-                <h3 className="chart-title">{T.dashboard.targetComparison}</h3>
-                <div className="relative h-48 sm:h-64">
-                  <Doughnut data={doughnutData} options={doughnutOptions} />
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="text-center">
-                      <p className="text-4xl font-bold text-green-600">{isLoading ? "..." : `${yieldPercentage}%`}</p>
-                      <p className="text-sm text-gray-600">{T.dashboard.ofTarget}</p>
-                    </div>
+      {/* Quick Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {quickStats.map((stat, index) => (
+          <div
+            key={index}
+            className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 border border-gray-100 dark:border-gray-700"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className={`p-3 rounded-lg ${stat.bgColor}`}>
+                <div className={stat.textColor}>
+                  {stat.icon}
+                </div>
+              </div>
+              <span className={`text-sm font-semibold ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                {stat.change}
+              </span>
+            </div>
+            <h3 className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1">{stat.title}</h3>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Quick Actions */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {quickActions.map((action, index) => (
+                <Link
+                  key={index}
+                  to={action.link}
+                  className="group relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 shadow-lg dark:from-gray-900 dark:to-gray-800 rounded-xl p-6 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 border border-gray-200 dark:border-gray-700"
+                >
+                  <div className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${action.color} text-white mb-4 group-hover:scale-110 transition-transform`}>
+                    {action.icon}
                   </div>
+                  <h3 className="font-bold text-gray-900 dark:text-white mb-1">{action.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{action.description}</p>
+                  <div className="flex items-center text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
+                    Start Now
+                    <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Recent Activity</h2>
+            <div className="space-y-4">
+              {recentActivity.map((activity) => (
+                <div key={activity.id} className="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                  <div className={`w-2 h-2 mt-2 rounded-full ${
+                    activity.status === 'success' ? 'bg-green-500' :
+                    activity.status === 'warning' ? 'bg-yellow-500' :
+                    activity.status === 'alert' ? 'bg-red-500' : 'bg-blue-500'
+                  }`}></div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 dark:text-white">{activity.action}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{activity.crop}</p>
+                  </div>
+                  <span className="text-xs text-gray-500 dark:text-gray-500">{activity.time}</span>
                 </div>
-              </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
-              {/* Bar Chart */}
-              <div className="chart-card">
-                <h3 className="chart-title">{T.dashboard.fertilizerImpact}</h3>
-                <div className="h-48 sm:h-64"><Bar data={barData} options={commonChartOptions} /></div>
-              </div>
-
-              {/* --- Prediction Result Card --- */}
-              {errorMessage && <div className="p-4 mb-4 text-center bg-red-100 text-red-700 rounded-lg shadow-md">{errorMessage}</div>}
-
-              {prediction !== null && (
-                <div className="bg-white p-6 rounded-xl shadow-lg mb-8 text-center">
-                  <h3 className="text-lg font-semibold text-gray-500 mb-2">{T.dashboard.estimatedYield}</h3>
-                  <p className="text-5xl font-bold text-green-600">{prediction}</p>
-                  <p className="text-lg text-gray-700">{(farmInfo.Crop.trim().toLowerCase() != 'coconut') ? T.dashboard.tonsPerHectare : T.dashboard.nutsPerHectare}</p>
-                  <p>{`Our target was ${targetYield} ${(farmInfo.Crop.trim().toLowerCase() != 'coconut') ? T.dashboard.tonsPerHectare : T.dashboard.nutsPerHectare}`} </p>
+        {/* Sidebar - Weather & Tips */}
+        <div className="space-y-6">
+          {/* Weather Card */}
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold">Today's Weather</h3>
+              <Sun className="w-8 h-8" />
+            </div>
+            <div className="space-y-3">
+              <div className="text-4xl font-bold">{weatherData.temp}</div>
+              <div className="text-blue-100">{weatherData.condition}</div>
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-blue-400/30">
+                <div>
+                  <div className="flex items-center space-x-2 text-blue-100 text-sm mb-1">
+                    <Droplets className="w-4 h-4" />
+                    <span>Humidity</span>
+                  </div>
+                  <div className="font-bold">{weatherData.humidity}</div>
                 </div>
-              )}
-
-              {/* Line Chart */}
-              <div className="md:col-span-2 chart-card">
-                <h3 className="chart-title">{T.dashboard.historicalYieldRainfall}</h3>
-                <div className="h-64 sm:h-80"><Line data={lineData} options={commonChartOptions} /></div>
+                <div>
+                  <div className="flex items-center space-x-2 text-blue-100 text-sm mb-1">
+                    <Droplets className="w-4 h-4" />
+                    <span>Rainfall</span>
+                  </div>
+                  <div className="font-bold">{weatherData.rainfall}</div>
+                </div>
               </div>
             </div>
           </div>
-        </main>
 
+          {/* Tips Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">💡 AI Tips</h3>
+            <div className="space-y-4">
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border-l-4 border-emerald-500">
+                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                  Perfect weather for wheat planting in the next 3 days!
+                </p>
+              </div>
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border-l-4 border-yellow-500">
+                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                  Monitor your rice field for potential pest activity
+                </p>
+              </div>
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-500">
+                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                  Irrigation recommended for Farm B tomorrow
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Links</h3>
+            <div className="space-y-2">
+              <Link to="/my-farms" className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">View All Farms</span>
+                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link to="/yield-prediction" className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Yield Prediction</span>
+                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link to="/recommend" className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Get Recommendations</span>
+                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link to="/identify" className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Identify Pests</span>
+                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-// Add some basic CSS styles directly in the JSX for reusability
-const App = () => {
-  return (
-    <>
-      <style>{`
-                .input-style {
-                    padding: 0.75rem 1rem;
-                    border-radius: 0.5rem;
-                    border: 1px solid #D1D5DB;
-                    background-color: #FFFFFF;
-                    color: #111827;
-                    transition: border-color 0.2s, box-shadow 0.2s;
-                }
-                .input-style:focus {
-                    outline: none;
-                    border-color: #10B981;
-                    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.5);
-                }
-                .chart-card {
-                    background-color: white;
-                    padding: 1.5rem;
-                    border-radius: 0.75rem;
-                    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-                }
-                .chart-title {
-                    font-size: 1.125rem; /* 18px */
-                    font-weight: 700;
-                    color: #1F2937; /* text-gray-800 */
-                    margin-bottom: 1rem;
-                }
-                .suggestion-card {
-                    background-color: white;
-                    padding: 1rem;
-                    border-radius: 0.75rem;
-                    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-                    display: flex;
-                    align-items: center;
-                    gap: 1rem;
-                }
-                .lang-button {
-                    padding: 0.5rem 1rem;
-                    border-radius: 0.375rem;
-                    font-weight: 600;
-                    border: none;
-                    cursor: pointer;
-                    transition: background-color 0.2s, color 0.2s;
-                }
-            `}</style>
-      <FarmerDashboard />
-    </>
-  );
-};
-
-export default App;
+export default Dashboard;

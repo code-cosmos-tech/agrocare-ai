@@ -1,187 +1,213 @@
-import React from 'react';
-import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom"; // Combined imports
-import { toast } from "react-toastify";
-import { useAuth } from "../store/Auth";
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../store/Auth';
+import { toast } from 'react-toastify';
+import { Eye, EyeOff, Mail, Lock, Sprout } from 'lucide-react';
 
-const Login = () => {
+const Login = ({ darkMode }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState({
-        email: "",
-        password: "",
+    email: '',
+    password: ''
+  });
+
+  const navigate = useNavigate();
+  const { storeTokenInLS } = useAuth();
+  const BASE = import.meta.env.VITE_EXPRESS_API_URL || "http://localhost:4000";
+  const URL = `${BASE}/api/auth/login`;
+
+  const handleInput = (e) => {
+    setUser({
+      ...user,
+      [e.target.name]: e.target.value,
     });
+  };
 
-    const { setUserToken, URL} = useAuth();
-    const navigate = useNavigate();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setUser({
-            ...user,
-            [name]: value,
+    try {
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      });
+
+      const res_data = await response.json();
+
+      if (response.ok) {
+        storeTokenInLS(res_data.token);
+        setUser({ email: "", password: "" });
+        toast.success("Login Successful! Welcome back! 🎉", {
+          position: "top-right",
+          autoClose: 3000,
         });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch(`${URL}/api/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(user),
-            });
-            const data = await response.json();
-            if (response.ok) {
-                setUserToken(data.token);
-                navigate("/dashboard");
-                toast.success(data.msg);
-            } else {
-                toast.error(data.msg);
-            }
-        } catch (error) {
-            console.log("Login error", error);
-            toast.error("An unexpected error occurred.");
-        }
-    };
+        navigate("/dashboard");
+      } else {
+        toast.error(res_data.extraDetails ? res_data.extraDetails : res_data.message, {
+          position: "top-right",
+          autoClose: 4000,
+        });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Connection error. Please try again.", {
+        position: "top-right",
+        autoClose: 4000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-green-600 dark:bg-green-500 rounded-full flex items-center justify-center mb-6">
-            <svg
-              className="h-8 w-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-              />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Login to Your Account
-          </h1>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Welcome back! Please enter your details.
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5 dark:opacity-10">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}></div>
+      </div>
+
+      <div className="max-w-md w-full space-y-8 relative z-10">
+        {/* Logo & Header */}
+        <div className="text-center animate-fadeIn">
+          <Link to="/" className="inline-flex items-center justify-center space-x-2 mb-6">
+            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform">
+              <Sprout className="w-8 h-8 text-white" />
+            </div>
+          </Link>
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            Welcome Back!
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Sign in to continue to AgroCare AI
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg px-8 py-8">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+        {/* Login Form */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 space-y-6 animate-fadeIn border border-gray-100 dark:border-gray-700">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email Input */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email
+                Email Address
               </label>
               <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400" />
+                </div>
                 <input
+                  type="email"
                   id="email"
                   name="email"
-                  type="text"
-                  autoComplete="username"
-                  required
                   value={user.email}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors duration-200"
-                  placeholder="Enter your email or phone number"
+                  onChange={handleInput}
+                  required
+                  className="input-field pl-10 w-full"
+                  placeholder="farmer@example.com"
                 />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg
-                    className="h-5 w-5 text-gray-400 dark:text-gray-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                </div>
               </div>
             </div>
 
+            {/* Password Input */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Password
               </label>
               <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
                 <input
+                  type={showPassword ? "text" : "password"}
                   id="password"
                   name="password"
-                  type='password'
-                  autoComplete="current-password"
-                  required
                   value={user.password}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors duration-200"
-                  placeholder="Enter your password"
+                  onChange={handleInput}
+                  required
+                  className="input-field pl-10 pr-10 w-full"
+                  placeholder="••••••••"
                 />
-                
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                  )}
+                </button>
               </div>
             </div>
 
+            {/* Remember & Forgot */}
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+                  className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded cursor-pointer"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                   Remember me
                 </label>
               </div>
-
-              <div className="text-sm">
-                <button
-                  type="button"
-                  className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium transition-colors duration-200"
-                  onClick={() => console.log('Navigate to forgot password')}
-                >
-                  Forgot your password?
-                </button>
-              </div>
+              <Link to="/forgot-password" className="text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300">
+                Forgot password?
+              </Link>
             </div>
 
-            <div>
-              <button
-                type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95"
-              >
-                Login
-              </button>
-            </div>
-
-            <div className="text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Don't have an account?{' '}
-                <NavLink to={'/signup'}>Sign Up</NavLink>
-              </p>
-            </div>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {isLoading ? (
+                <>
+                  <div className="spinner border-white mr-2"></div>
+                  Signing in...
+                </>
+              ) : (
+                'Sign In'
+              )}
+            </button>
           </form>
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                Don't have an account?
+              </span>
+            </div>
+          </div>
+
+          {/* Sign Up Link */}
+          <Link
+            to="/signup"
+            className="w-full flex items-center justify-center px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+          >
+            Create New Account
+          </Link>
         </div>
 
+        {/* Back to Home */}
         <div className="text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            By signing in, you agree to our{' '}
-            <button className="text-green-600 dark:text-green-400 hover:underline">
-              Terms of Service
-            </button>{' '}
-            and{' '}
-            <button className="text-green-600 dark:text-green-400 hover:underline">
-              Privacy Policy
-            </button>
-          </p>
+          <Link to="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200">
+            ← Back to Home
+          </Link>
         </div>
       </div>
     </div>

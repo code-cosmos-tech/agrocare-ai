@@ -1,84 +1,99 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
-
+import React, { useState, useEffect, createContext, useContext } from "react";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [token, setToken] = useState(localStorage.getItem("accessToken") || "");
-    const [isAdmin, setIsAdmin] = useState(false); 
-    const [userData, setUserData] = useState({ 
-        username: "",
-        email: "",
-        phone: "",
-        password: ""
-    });
+  const [token, setToken] = useState(localStorage.getItem("accessToken") || "");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    const tokenBearer = "Bearer " + token;
-    const URL = "https://agrocare-ai-server.onrender.com";
-    const isLoggedIn = !!token;
+  // ✅ Auto-detect backend (env first → fallback to Render)
+  const BASE_URL =
+    import.meta.env.VITE_EXPRESS_API_URL ||
+    "https://agrocare-ai-server.onrender.com";
 
-    const AuthenticateUser = async () => {
-        if (!token) return;
-        
-        try {
-            const res = await fetch(`${URL}/api/user`, {
-                method: "GET",
-                headers: {
-                    "Authorization": tokenBearer
-                }
-            });
+  const tokenBearer = token ? `Bearer ${token}` : "";
+  const isLoggedIn = !!token;
 
-            const data = await res.json();
+  // ✅ Store token and persist login
+  const storeTokenInLS = (tokenValue) => {
+    setToken(tokenValue);
+    localStorage.setItem("accessToken", tokenValue);
+  };
 
-            if (res.ok) {
-                setUserData(data);
-                setIsAdmin(data.isAdmin || false);
-            }
-            return data
-        } catch (error) {
-            console.error("Authentication failed:", error);
-        }
+  // ✅ Logout user
+  const removeTokenFromLS = () => {
+    setUserData(null);
+    setToken("");
+    setIsAdmin(false);
+    localStorage.removeItem("accessToken");
+  };
+
+  // ✅ Check token validity (auto-refresh check)
+  const AuthenticateUser = async () => {
+    if (!token) {
+      setLoading(false);
+      return;
     }
 
-    useEffect(() => {
-        AuthenticateUser();
-    }, []);
+    try {
+      const res = await fetch(`${BASE_URL}/api/user`, {
+        method: "GET",
+        headers: { Authorization: tokenBearer },
+      });
 
-    const setUserToken = (token) => {
-        setToken(token);
-        localStorage.setItem("accessToken", token);
+      const data = await res.json();
+
+      if (res.ok) {
+        setUserData(data);
+        setIsAdmin(data.isAdmin || false);
+      } else {
+        console.warn("Session expired or invalid token.");
+        removeTokenFromLS();
+      }
+    } catch (error) {
+      console.error("Authentication check failed:", error);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const logout = () => {
-        setUserData({});
-        setToken("");
-        setIsAdmin(false);
-        localStorage.removeItem("accessToken");
-    }
+  // ✅ Run once when app loads or token changes
+  useEffect(() => {
+    AuthenticateUser();
+  }, [token]);
 
-    const contextValue = {
-        logout,
-        setUserToken,
-        userData,
-        AuthenticateUser,
-        setUserData,
-        tokenBearer,
-        isLoggedIn,
-        URL,
-        isAdmin,
-        token,
-    };
+  // ✅ Expose everything in context
+  const contextValue = {
+    token,
+    isLoggedIn,
+    userData,
+    isAdmin,
+    BASE_URL,
+    tokenBearer,
+    storeTokenInLS,
+    removeTokenFromLS,
+    AuthenticateUser,
+    loading,
+  };
 
-    return (
-        <AuthContext.Provider value={contextValue}>
-            {children}
-        </AuthContext.Provider>
-    );
-}
+  return (
+    <AuthContext.Provider value={contextValue}>
+      {loading ? (
+        <div className="flex h-screen items-center justify-center text-lg">
+          Loading...
+        </div>
+      ) : (
+        children
+      )}
+    </AuthContext.Provider>
+  );
+};
 
 export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };

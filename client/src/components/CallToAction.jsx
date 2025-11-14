@@ -1,6 +1,5 @@
 // src/components/CallToAction.js
-import React from 'react';
-import './CallToAction.css';
+import React from "react";
 import { useNavigate } from 'react-router';
 
 const CallToAction = () => {
