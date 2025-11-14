@@ -8,7 +8,7 @@ const errorFunction = require("./middlewares/error-func");
 const cors = require("cors");
 
 const PORT = process.env.PORT || 4000;
-const CLIENT_URL = process.env.CLIENT_URL || 'https://agro-care-ai.vercel.app';
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 const corsOption = {
   origin: [CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:3000'],
@@ -20,13 +20,13 @@ const corsOption = {
 app.use(express.json());
 app.use(cors(corsOption));
 
-app.use("/api", authRouter);
+app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 
 app.use(errorFunction);
 
 connectDb().then(() => {
-    app.listen(PORT, (req, res) => {
-        console.log("listening...");
-    });
+  app.listen(PORT, (res, req) => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
 })

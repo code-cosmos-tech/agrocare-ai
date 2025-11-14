@@ -1,20 +1,19 @@
 const express = require("express");
-const authcontollers = require("../controllers/auth-controller")
-const validate = require("../zod-models/validate");
-const validator = require("../middlewares/validator")
-
 const router = express.Router();
+const authControllers = require("../controllers/auth-controller");
+const validate = require("../zod-models/validate");
+const validator = require("../middlewares/validator");
 
-router.route("/").get((req, res) => {
-    res.send("This is home.");
-});
+// ✅ Register Route
+router
+  .route("/register")
+  .post(validator(validate.registerSchema), authControllers.register);
 
-router.route("/login").get((req, res) => {
-    res.send("This is login.");
-}).post(validator(validate.loginSchema), authcontollers.login);
+// ✅ Login Route
+router
+  .route("/login")
+  .post(validator(validate.loginSchema), authControllers.login);
 
-router.route("/register").get((req, res) => {
-    res.send("This is register.");
-}).post(validator(validate.registerSchema), authcontollers.register);
+router.get("/login", (req, res) => res.send("Login route working ✅"));
 
 module.exports = router;
