@@ -1,8 +1,9 @@
 """
+====================================
 AgroCare-AI: Machine Learning API's
-=====================================
-Flask server for handling ML tasks including crop yield prediction,
-crop recommendation, and pest identification.
+====================================
+
+Flask server for handling ML tasks including crop/coconut yield prediction, crop recommendation, and pest identification.
 
 Author: Jay Dholu
 Email: jaydholu074@gmail.com
@@ -21,7 +22,7 @@ from colorama import init, Fore
 import joblib
 import pandas as pd
 import numpy as np
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -198,7 +199,7 @@ def validate_categorical_fields(data: Dict[str, Any]) -> Optional[str]:
         if crop not in VALID_CROPS:
             return f"Invalid Crop. Must be one of: {', '.join(VALID_CROPS)}"
     
-    # Check State
+    # Check State                  # Right now this is not needed
     # valid_states = ['Odisha']
     # if 'State' in data_keys:
     #     state = str(data['State']).strip()
@@ -213,7 +214,7 @@ def validate_categorical_fields(data: Dict[str, Any]) -> Optional[str]:
 @app.route('/home')
 def home():
     """A simple welcome message to check if the server is running."""
-    return "<h1 align='center'>AgroCare-AI API <br> The ML server is running. Use the /api/v1/info endpoint to know more.</h1>"
+    return render_template('home.html')
 
 
 @app.route(f'/api/{__api_version__}/system/info', methods=['GET'])
@@ -380,9 +381,9 @@ def internal_error(error):
 
 
 if __name__ == '__main__':
-    print(Fore.GREEN + "=" * 60)
+    print(Fore.GREEN + "=" * 80)
     print(Fore.GREEN + "  AgroCare-AI ML API Starting...")
-    print(Fore.GREEN + "=" * 60)
+    print(Fore.GREEN + "=" * 80)
     print(f"  Server: http://{Config.HOST}:{Config.PORT}")
     print(f"  Debug Mode: {Config.DEBUG}")
     print(f"  Environment: {'Development' if Config.DEBUG else 'Production'}")
